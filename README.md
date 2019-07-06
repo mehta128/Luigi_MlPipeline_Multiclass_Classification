@@ -66,5 +66,5 @@ classifier and score using the model.  The pipeline should have these steps:
 
 ## References
 
- * Luigi package: `http://luigi.readthedocs.io/en/stable/`
+     * Luigi package: `http://luigi.readthedocs.io/en/stable/`
 # Luigi_MlPipeline_Multiclass_Classification
