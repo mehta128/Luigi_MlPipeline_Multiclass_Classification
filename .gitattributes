@@ -1,2 +1,2 @@
 * linguist-vendored
-*.py linguist-language=Java
+*.py linguist-vendored=false
