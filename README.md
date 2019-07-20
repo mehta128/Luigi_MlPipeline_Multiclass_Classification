@@ -1,3 +1,17 @@
+# My Comments
+
+The main task of this data challenge was to handel the class imbalance using technique like randomover sampling or doing SMOTE etc. 
+Please see the EDA folder to see different visualization of the data provided
+
+I have tried to map the sentiments on the Maps
+And have plotted different analysis of data using profiling data.
+
+If you think this repo is been useful in someway then please Star it and send me a connection request on LinkedIn
+https://www.linkedin.com/in/kaitav-mehta/
+
+I still need to improve the code, I will keep working on it as I get more time.
+Many Thanks :)
+
 # ML Pipeline Problem
 
 This question will test some basic skills in cleaning data and building a machine learning pipeline.
