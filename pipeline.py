@@ -10,6 +10,12 @@ from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.utils import resample
+from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import precision_score, recall_score, f1_score
+
 
 class CleanDataTask(luigi.Task):
 
@@ -75,6 +81,8 @@ class TrainingDataTask(luigi.Task):
             Convert latitude and longitude to x,y,x coordinates using below formula:
             r = (x,y,z) = (R.cos(lat)cos(long),R.cos(lat)sin(long),R.sin(lat))
             And then calculate euclidean distance 
+            
+            Probably not required for data challenge but from physics point of view this the correct way to find the euclidian distance given two cordinates
             """
             convertToRadian = np.pi/180
             x1 = R*np.cos(latitude*convertToRadian)*np.cos(longitude*convertToRadian)
@@ -89,11 +97,9 @@ class TrainingDataTask(luigi.Task):
 
             x.append(city_file.loc[nearest_index,'name'])
 
+
         # One-hot encoding
         X = pd.get_dummies(pd.DataFrame(x),prefix='', prefix_sep='')
-
-        # Label Encoder
-        # X = pd.DataFrame(x).apply(LabelEncoder().fit_transform)
 
         features = pd.concat([X, y], axis=1)
         features.to_csv(self.output_file)
@@ -122,26 +128,41 @@ class TrainModelTask(luigi.Task):
         X= features.iloc[:,1:len(features.columns)-1].values
         y = features.iloc[:,len(features.columns)-1].values
 
-        X_train, X_test, y_train, y_test = train_test_split(X,y,random_state=10)
+        def rf_cv(splits, X, Y, pipeline, average_method):
+            kfold = StratifiedKFold(n_splits=splits, shuffle=True, random_state=777)
+            accuracy = []
+            precision = []
+            recall = []
+            f1 = []
+            for train, test in kfold.split(X, Y):
 
-        """
-        classifiers tested and selected the simple model with highest accuracy. 
-        # classifier = SVC(kernel='rbf',gamma='auto',probability=True)
-        # classifier = RandomForestClassifier(n_estimators=5,random_state=2)
-        """
+                rf_fit = pipeline.fit(X[train], Y[train])
 
-        classifier = linear_model.LogisticRegression()
-        classifier.fit(X_train, y_train)
-        pred = classifier.predict(X_test)
+                prediction = rf_fit.predict(X[test])
+                scores = rf_fit.score(X[test], Y[test])
 
-        print("Accuracy:{:.3f}".format(accuracy_score(y_test,pred)))
-        print("Classification Report")
-        print(classification_report(y_test,pred))
+                accuracy.append(scores * 100)
+                precision.append(precision_score(Y[test], prediction, average=average_method) * 100)
+                print('              negative    neutral     positive')
+                print('precision:', precision_score(Y[test], prediction, average=None))
+                recall.append(recall_score(Y[test], prediction, average=average_method) * 100)
+                print('recall:   ', recall_score(Y[test], prediction, average=None))
+                f1.append(f1_score(Y[test], prediction, average=average_method) * 100)
+                print('f1 score: ', f1_score(Y[test], prediction, average=None))
+                print('-' * 50)
 
-        cross_val = cross_val_score(classifier,X,y,cv=5)
-        print("Avg. Cross-validation Scores:{}".format(cross_val.mean()))
+            print("accuracy: %.2f%% (+/- %.2f%%)" % (np.mean(accuracy), np.std(accuracy)))
+            print("precision: %.2f%% (+/- %.2f%%)" % (np.mean(precision), np.std(precision)))
+            print("recall: %.2f%% (+/- %.2f%%)" % (np.mean(recall), np.std(recall)))
+            print("f1 score: %.2f%% (+/- %.2f%%)" % (np.mean(f1), np.std(f1)))
+            # Save the model
+            joblib.dump(rf_fit, self.output_file)
 
-        joblib.dump(classifier,self.output_file)
+        smote = SMOTE(ratio='minority')
+        classifier = RandomForestClassifier(n_estimators=5,random_state=2)
+        SMOTE_pipeline = Pipeline([('smt', smote), ('rf', classifier)])
+
+        rf_cv(5, X, y, SMOTE_pipeline, 'macro')
 
     def output(self):
         return luigi.LocalTarget(self.output_file)
