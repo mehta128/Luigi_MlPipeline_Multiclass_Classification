@@ -12,6 +12,18 @@ https://www.linkedin.com/in/kaitav-mehta/
 I still need to improve the code, I will keep working on it as I get more time.
 Many Thanks :)
 
+Usefull URL to understand the solution:
+
+Rightway to oversample in predective modelling
+https://beckernick.github.io/oversampling-modeling/
+
+Crossvalidation pipeline with randomforest
+https://www.kaggle.com/alexisbcook/cross-validation
+https://towardsdatascience.com/yet-another-twitter-sentiment-analysis-part-1-tackling-class-imbalance-4d7a7f717d44
+
+Preventing Dataleakage
+https://www.kaggle.com/alexisbcook/data-leakage
+
 # ML Pipeline Problem
 
 This question will test some basic skills in cleaning data and building a machine learning pipeline.
