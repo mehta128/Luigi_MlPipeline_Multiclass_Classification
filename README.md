@@ -6,8 +6,7 @@ Please see the EDA folder to see different visualization of the data provided
 I have tried to map the sentiments on the Maps
 And have plotted different analysis of data using profiling data.
 
-If you think this repo is been useful in someway then please Star it and send me a connection request on LinkedIn
-https://www.linkedin.com/in/kaitav-mehta/
+If you think this repo is been useful in someway then please Star it.
 
 I still need to improve the code, I will keep working on it as I get more time.
 Many Thanks :)
